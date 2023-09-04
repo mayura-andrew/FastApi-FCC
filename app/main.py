@@ -1,16 +1,19 @@
 import datetime
 from typing import Optional, Union, List
 from fastapi import FastAPI, HTTPException, Response, status, Depends
+from fastapi.exceptions import HTTPException
 from fastapi.params import Body
 from pydantic import BaseModel
 from random import randrange
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import time
+from passlib.context import CryptContext 
 from . import models, schemas
 from .database import engine, SessionLocal, get_db
 from sqlalchemy.orm import Session
 
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -90,33 +93,28 @@ def create_post(post: schemas.PostCreate, db: Session = Depends(get_db)):
 #     post = my_posts[len(my_posts)-1]
 #     return{"post details": post}
 
-@app.get("/posts/{id}", response_model=schemas.Post)
-def get_post(id: int, response: Response, db: Session = Depends(get_db)):
+@app.get("/posts/{id}", status_code=status.HTTP_200_OK, response_model=schemas.Post)
+def get_post(id: int, db: Session = Depends(get_db)):
     # cursor.execute("""SELECT * FROM posts WHERE id = %s """, (str(id),))
     # post  = cursor.fetchone()
     
     post = db.query(models.Post).filter(models.Post.id == id).first()
-    print(post)
-    
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
                             detail=f"post with id {id} not found")
     
         # response.status_code = status.HTTP_404_NOT_FOUND
         # return {"error": "post not found"}
-    return{"post details": post}
+    return post
 
 
-@app.delete("/posts/{id}", status_code=status.HTTP_204_NO_CONTENT)
+@app.delete("/posts/{id}", response_model=schemas.Post)
 def delete_post(id: int, db: Session = Depends(get_db)):
     # cursor.execute("""DELETE FROM posts WHERE id = %s RETURNING *""", (str(id),))
     # delete_post = cursor.fetchone()
     # conn.commit()
     
     post = db.query(models.Post).filter(models.Post.id == id )
-    
-    
-    
     if post.first() == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
                             detail=f"post with id {id} not found")
@@ -128,23 +126,27 @@ def delete_post(id: int, db: Session = Depends(get_db)):
 
 
 @app.put("/posts/{id}", response_model=schemas.Post)
-def update_post(id: int, updated_post: schemas.PostCreate, db: Session = Depends(get_db)):
-    # cursor.execute("""UPDATE posts SET title = %s, content = %s, published = %s WHERE id = %s RETURNING *""", 
-    #                (post.title, post.content, post.published, str(id)))
-    
-    # update_post = cursor.fetchone()
-    # conn.commit()
+def update_post(id: int, post: schemas.PostCreate, db: Session = Depends(get_db)):
     post_query = db.query(models.Post).filter(models.Post.id == id)
     
-    post = post_query.first()
+    post_from_db = post_query.first()
     
-    if update_post == None:
+    if post_from_db is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
                             detail=f"post with id {id} not found")
         
-    post_query.update(updated_post.dict(), synchronize_session=False)
+    post_query.update(post.dict(), synchronize_session=False)
     
     db.commit()
     
-    return {"data": "post updated successfully", "post": post_query.first()}
+    return post_query.first()
 
+
+@app.post("/users", status_code=status.HTTP_201_CREATED, response_model=schemas.UserOut)
+def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    new_user = models.User(**user.dict())
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    
+    return new_user
