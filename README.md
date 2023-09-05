@@ -53,6 +53,7 @@ Welcome to the FastAPI project! This project is designed to help you get started
 
 6. Access the application in your web browser at `http://localhost:8000`.
 
+```
 ## 🚀 Usage
 
 - Visit the API documentation at `http://localhost:8000/docs` to explore the available endpoints and interact with the API.
@@ -68,10 +69,8 @@ Contributions are welcome! If you'd like to contribute to this project, please f
 4. Push your changes to your fork: `git push origin feature/my-feature`.
 5. Open a pull request to the `main` branch of the original repository.
 
-## 📄 License
 
-This project is licensed under the [MIT License](LICENSE).
 
 Happy coding! 🎉
-```
+
 
