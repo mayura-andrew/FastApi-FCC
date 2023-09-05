@@ -51,8 +51,8 @@ def get_posts(db: Session = Depends(get_db), current_user: int = Depends(oauth2.
 #     return {"data": "post created successfully", "post": new_post}
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.Post)
 def create_post(post: schemas.PostCreate, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
-    print(current_user.email)
-    new_post = models.Post(**post.dict())
+    print(current_user.id)
+    new_post = models.Post(owner_id=current_user.id, **post.dict())
     db.add(new_post)
     db.commit()
     db.refresh(new_post)
@@ -93,6 +93,7 @@ def delete_post(id: int, db: Session = Depends(get_db),  current_user: int = Dep
     if post.first() == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
                             detail=f"post with id {id} not found")
+    
     
     post.delete(synchronize_session=False)
     db.commit()
