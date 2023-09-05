@@ -10,7 +10,6 @@ Welcome to the FastAPI project! This project is designed to help you get started
 - [Installation](#installation)
 - [Usage](#usage)
 - [Contributing](#contributing)
-- [License](#license)
 
 ## ✨ Features
 
