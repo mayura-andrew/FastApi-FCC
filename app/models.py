@@ -1,6 +1,7 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, Boolean, TIMESTAMP, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+
 from sqlalchemy.sql.sqltypes import TIMESTAMP
 
 from .database import Base
@@ -29,3 +30,10 @@ class User(Base):
                         nullable=False, server_default=text('now()'))
     updated_at = Column(TIMESTAMP(timezone=True), 
                         nullable=False, server_default=text('now()'))
+    
+    
+class Vote(Base):
+    __tablename__ = "votes"
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    post_id = Column(Integer, ForeignKey("posts.id", ondelete="CASCADE"), primary_key=True)
+    

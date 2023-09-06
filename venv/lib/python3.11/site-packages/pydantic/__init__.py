@@ -1,111 +1,56 @@
-import typing
-
-import pydantic_core
-from pydantic_core.core_schema import (
-    FieldSerializationInfo,
-    FieldValidationInfo,
-    SerializationInfo,
-    SerializerFunctionWrapHandler,
-    ValidationInfo,
-    ValidatorFunctionWrapHandler,
-)
-
+# flake8: noqa
 from . import dataclasses
-from ._internal._annotated_handlers import (
-    GetCoreSchemaHandler as GetCoreSchemaHandler,
-)
-from ._internal._annotated_handlers import (
-    GetJsonSchemaHandler as GetJsonSchemaHandler,
-)
-from ._internal._generate_schema import GenerateSchema as GenerateSchema
-from ._migration import getattr_migration
-from .config import ConfigDict, Extra
-from .deprecated.class_validators import root_validator, validator
-from .deprecated.config import BaseConfig
-from .deprecated.tools import *
+from .annotated_types import create_model_from_namedtuple, create_model_from_typeddict
+from .class_validators import root_validator, validator
+from .config import BaseConfig, ConfigDict, Extra
+from .decorator import validate_arguments
+from .env_settings import BaseSettings
+from .error_wrappers import ValidationError
 from .errors import *
-from .fields import AliasChoices, AliasPath, Field, PrivateAttr, computed_field
-from .functional_serializers import PlainSerializer, SerializeAsAny, WrapSerializer, field_serializer, model_serializer
-from .functional_validators import (
-    AfterValidator,
-    BeforeValidator,
-    InstanceOf,
-    PlainValidator,
-    SkipValidation,
-    WrapValidator,
-    field_validator,
-    model_validator,
-)
-from .json_schema import WithJsonSchema
+from .fields import Field, PrivateAttr, Required
 from .main import *
 from .networks import *
-from .type_adapter import TypeAdapter
+from .parse import Protocol
+from .tools import *
 from .types import *
-from .validate_call import validate_call
-from .version import VERSION
-from .warnings import *
+from .version import VERSION, compiled
 
 __version__ = VERSION
-
-# this encourages pycharm to import `ValidationError` from here, not pydantic_core
-ValidationError = pydantic_core.ValidationError
 
 # WARNING __all__ from .errors is not included here, it will be removed as an export here in v2
 # please use "from pydantic.errors import ..." instead
 __all__ = [
+    # annotated types utils
+    'create_model_from_namedtuple',
+    'create_model_from_typeddict',
     # dataclasses
     'dataclasses',
-    # functional validators
-    'ValidationInfo',
-    'FieldValidationInfo',
-    'ValidatorFunctionWrapHandler',
-    'field_validator',
-    'model_validator',
-    'AfterValidator',
-    'BeforeValidator',
-    'PlainValidator',
-    'WrapValidator',
-    # deprecated V1 functional validators
+    # class_validators
     'root_validator',
     'validator',
-    # functional serializers
-    'field_serializer',
-    'model_serializer',
-    'PlainSerializer',
-    'SerializeAsAny',
-    'WrapSerializer',
-    'FieldSerializationInfo',
-    'SerializationInfo',
-    'SerializerFunctionWrapHandler',
     # config
     'BaseConfig',
     'ConfigDict',
     'Extra',
-    # validate_call
-    'validate_call',
-    # pydantic_core errors
+    # decorator
+    'validate_arguments',
+    # env_settings
+    'BaseSettings',
+    # error_wrappers
     'ValidationError',
-    # errors
-    'PydanticErrorCodes',
-    'PydanticUserError',
-    'PydanticSchemaGenerationError',
-    'PydanticImportError',
-    'PydanticUndefinedAnnotation',
-    'PydanticInvalidForJsonSchema',
     # fields
-    'AliasPath',
-    'AliasChoices',
     'Field',
-    'computed_field',
+    'Required',
     # main
     'BaseModel',
     'create_model',
+    'validate_model',
     # network
     'AnyUrl',
     'AnyHttpUrl',
     'FileUrl',
     'HttpUrl',
-    'UrlConstraints',
+    'stricturl',
     'EmailStr',
     'NameEmail',
     'IPvAnyAddress',
@@ -117,37 +62,48 @@ __all__ = [
     'RedisDsn',
     'MongoDsn',
     'KafkaDsn',
-    'MySQLDsn',
-    'MariaDBDsn',
     'validate_email',
-    # root_model
-    'RootModel',
+    # parse
+    'Protocol',
     # tools
+    'parse_file_as',
     'parse_obj_as',
+    'parse_raw_as',
     'schema_of',
     'schema_json_of',
     # types
-    'Strict',
+    'NoneStr',
+    'NoneBytes',
+    'StrBytes',
+    'NoneStrBytes',
     'StrictStr',
+    'ConstrainedBytes',
     'conbytes',
+    'ConstrainedList',
     'conlist',
+    'ConstrainedSet',
     'conset',
+    'ConstrainedFrozenSet',
     'confrozenset',
+    'ConstrainedStr',
     'constr',
-    'StringConstraints',
-    'ImportString',
+    'PyObject',
+    'ConstrainedInt',
     'conint',
     'PositiveInt',
     'NegativeInt',
     'NonNegativeInt',
     'NonPositiveInt',
+    'ConstrainedFloat',
     'confloat',
     'PositiveFloat',
     'NegativeFloat',
     'NonNegativeFloat',
     'NonPositiveFloat',
     'FiniteFloat',
+    'ConstrainedDecimal',
     'condecimal',
+    'ConstrainedDate',
     'condate',
     'UUID1',
     'UUID3',
@@ -155,8 +111,9 @@ __all__ = [
     'UUID5',
     'FilePath',
     'DirectoryPath',
-    'NewPath',
     'Json',
+    'JsonWrapper',
+    'SecretField',
     'SecretStr',
     'SecretBytes',
     'StrictBool',
@@ -168,48 +125,7 @@ __all__ = [
     'ByteSize',
     'PastDate',
     'FutureDate',
-    'PastDatetime',
-    'FutureDatetime',
-    'AwareDatetime',
-    'NaiveDatetime',
-    'AllowInfNan',
-    'EncoderProtocol',
-    'EncodedBytes',
-    'EncodedStr',
-    'Base64Encoder',
-    'Base64Bytes',
-    'Base64Str',
-    'SkipValidation',
-    'InstanceOf',
-    'WithJsonSchema',
-    'GetPydanticSchema',
-    # type_adapter
-    'TypeAdapter',
     # version
+    'compiled',
     'VERSION',
-    # warnings
-    'PydanticDeprecatedSince20',
-    'PydanticDeprecationWarning',
-    # annotated handlers
-    'GetCoreSchemaHandler',
-    'GetJsonSchemaHandler',
-    'GenerateSchema',
 ]
-
-# A mapping of {<member name>: <module name>} defining dynamic imports
-_dynamic_imports = {'RootModel': '.root_model'}
-if typing.TYPE_CHECKING:
-    from .root_model import RootModel
-
-_getattr_migration = getattr_migration(__name__)
-
-
-def __getattr__(attr_name: str) -> object:
-    dynamic_attr = _dynamic_imports.get(attr_name)
-    if dynamic_attr is None:
-        return _getattr_migration(attr_name)
-
-    from importlib import import_module
-
-    module = import_module(_dynamic_imports[attr_name], package=__package__)
-    return getattr(module, attr_name)
