@@ -8,10 +8,11 @@ from pydantic import BaseSettings
 
 #models.Base.metadata.create_all(bind=engine)
 
+origins = ["*"]
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:8000"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
