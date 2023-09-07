@@ -1,0 +1,26 @@
+version: "3"
+services:
+  api:
+    image: mayuraandrew/fastapi
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/usr/src/app
+    environment:
+      - DATABASE_URL=postgresql://postgres:FastApi@postgres:5432/postgres
+      - SECRET_KEY=OUSL
+      - ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=60
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres:latest
+    environment:
+      - POSTGRES_PASSWORD=FastApi
+      - POSTGRES_DB=postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+
+volumes:
+  postgres_data:
