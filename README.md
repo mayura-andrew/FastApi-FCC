@@ -10,6 +10,7 @@ Welcome to the FastAPI project! This project is designed to help you get started
 - [Installation](#installation)
 - [Usage](#usage)
 - [Contributing](#contributing)
+- [Links](#Docker-Image)
 
 ## ✨ Features
 
@@ -68,6 +69,9 @@ Contributions are welcome! If you'd like to contribute to this project, please f
 4. Push your changes to your fork: `git push origin feature/my-feature`.
 5. Open a pull request to the `main` branch of the original repository.
 
+## Docker Image
+
+docker pull mayuraandrew/fastapi
 
 
 Happy coding! 🎉
