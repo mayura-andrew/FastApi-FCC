@@ -1,0 +1,6 @@
+services:
+  - name: web
+    env:
+      - key: DATABASE_URL
+        from: database.url  # Replace with your actual database URL
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
