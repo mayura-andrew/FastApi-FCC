@@ -70,9 +70,9 @@ Contributions are welcome! If you'd like to contribute to this project, please f
 5. Open a pull request to the `main` branch of the original repository.
 
 ## Docker Image
-
+```shell
 docker pull mayuraandrew/fastapi
-
+```
 
 Happy coding! 🎉
 
